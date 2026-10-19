@@ -577,7 +577,9 @@
         <h3>Envoyez-nous un message</h3>
         <p>Les champs marqués d'un astérisque sont obligatoires.</p>
 
-        <form id="contactForm" novalidate data-endpoint="/api/contact">
+        <form id="contactForm" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate data-endpoint="/">
+          <input type="hidden" name="form-name" value="contact">
+          <p hidden><label>Ne pas remplir : <input name="bot-field"></label></p>
           <div class="form-grid">
             <div class="field" data-field>
               <label for="name">Nom complet <span class="req">*</span></label>
@@ -651,7 +653,9 @@
       <div class="form-card">
         <h3>Partagez votre expérience</h3>
         <p>Votre avis sera publié après vérification par notre équipe.</p>
-        <form id="reviewForm" novalidate data-endpoint="/api/reviews">
+        <form id="reviewForm" name="review" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate data-endpoint="/">
+          <input type="hidden" name="form-name" value="review">
+          <p hidden><label>Ne pas remplir : <input name="bot-field"></label></p>
           <div class="form-grid">
             <div class="field" data-field>
               <label for="rv-name">Nom complet <span class="req">*</span></label>
@@ -821,14 +825,13 @@
     const originalLabel = submitBtn.textContent;
     submitBtn.textContent = 'Envoi en cours…';
 
-    const payload = Object.fromEntries(new FormData(form).entries());
-    payload.consent = form.consent.checked;
+    const payload = new URLSearchParams(new FormData(form));
 
     try {
       const res = await fetch(form.dataset.endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: payload.toString(),
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       form.reset();
@@ -973,9 +976,9 @@
       submit.disabled = true;
       const label = submit.textContent;
       submit.textContent = 'Envoi en cours…';
-      const payload = { name: form.name.value.trim(), role: form.role.value.trim(), rating: Number(form.rating.value), text: form.text.value.trim(), consent: form.consent.checked };
+      const payload = new URLSearchParams(new FormData(form));
       try {
-        const res = await fetch(form.dataset.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(payload) });
+        const res = await fetch(form.dataset.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: payload.toString() });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         form.reset();
         statusBox.className = 'status show ok';
